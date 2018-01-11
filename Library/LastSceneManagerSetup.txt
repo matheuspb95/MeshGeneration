@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/Scene/Main - Tube.unity
-  isLoaded: 1
-  isActive: 1
