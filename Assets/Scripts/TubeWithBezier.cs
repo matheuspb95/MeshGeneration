@@ -8,6 +8,7 @@ public class TubeWithBezier : MonoBehaviour {
 	public int circleVertices;
 	public int rings;
 	private Vector3[] vertices;
+	
 	private Mesh mesh;
 	BezierSpline spline;
 
@@ -23,27 +24,28 @@ public class TubeWithBezier : MonoBehaviour {
 		float x,y,z = 0, angle = 0, t = 0;
 
 		vertices = new Vector3[circleVertices * (rings + 1)];
+		Vector2[] uv = new Vector2[vertices.Length];
 		for(int j = 0; j < rings + 1; j++){
 			int start = j * circleVertices;
 			t = (float)(j) / (float)rings;
-			print(t);
+			Transform tr = new GameObject("CurvePoint").transform;
+			Vector3 direction = spline.GetVelocity(t).normalized;
+			tr.rotation = Quaternion.LookRotation(direction);
+			print(direction);
+			Vector3 point = spline.GetPoint(t) - transform.position;
+			tr.parent = transform;
+			tr.position = point;
 			for(int i = start; i < start + circleVertices; i++){
 				x = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
 				y = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
-				Vector3 direction = spline.GetVelocity(t).normalized;
-				float xd = radius * direction.x * direction.y;
-				float yd = radius * (1 - direction.y);
-				float zd = radius * direction.z * direction.y;
-				direction = new Vector3(xd, yd, zd);
-				Vector3 point = spline.GetPoint(t) - transform.position;
 				//print(point);
-				vertices[i] = new Vector3(x,y,z) + point;// + direction;
+				vertices[i] = tr.TransformPoint(new Vector3(x,y,0)); 
+				uv[i] = new Vector2((float)i / circleVertices, 0);
 				angle += 360 / circleVertices;
 				yield return new WaitForSecondsRealtime(0.01f);
 			}
 		}
 		mesh.vertices = vertices;
-
 		int[] triangles = new int[(circleVertices) * (rings + 1) * 6];
 		int vert = 0, vertRef = 0, circle = 0, total = 0;
 		for(int r = 0; r < rings; r++){
@@ -75,6 +77,8 @@ public class TubeWithBezier : MonoBehaviour {
 		mesh.triangles = triangles;
 
 		mesh.RecalculateNormals();
+
+		mesh.uv = uv;
 	}
 
 	private void OnDrawGizmos () {
@@ -83,7 +87,7 @@ public class TubeWithBezier : MonoBehaviour {
 		}
 		Gizmos.color = Color.black;
 		for (int i = 0; i < vertices.Length; i++) {
-			Gizmos.DrawSphere(vertices[i], 0.1f);
+			Gizmos.DrawSphere(vertices[i], 0.02f);
 		}
 	}
 }

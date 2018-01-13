@@ -6,7 +6,7 @@ using UnityEngine;
 public class CurvedCirleTest : MonoBehaviour {
 	private Vector3[] vertices;
 	public int circleVertices;
-	public int rings;
+	public Transform[] rings;
 	public float radius;
 	// Use this for initialization
 	void Start () {
@@ -16,26 +16,18 @@ public class CurvedCirleTest : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float x,y,z = 0, angle = 0, t = 0;
-
-		vertices = new Vector3[circleVertices * (rings + 1)];
-		for(int j = 0; j < rings + 1; j++){
+		int ringCount = rings.Length;
+		vertices = new Vector3[circleVertices * (ringCount + 1)];
+		for(int j = 0; j < ringCount; j++){
 			int start = j * circleVertices;
-			t = (float)(j) / (float)rings;
-			print(t);
+			t = (float)(j) / (float)ringCount;
+			//print(t);
 			for(int i = start; i < start + circleVertices; i++){
-				Vector3 direction = transform.forward;
-				//direction = new Vector3(xd, yd, zd);
-				x = radius * Mathf.Cos(angle * Mathf.Deg2Rad);// * Mathf.Sin(angle2 * Mathf.Deg2Rad);
-				y = radius * Mathf.Sin(angle * Mathf.Deg2Rad);// * Mathf.Sin(angle2 * Mathf.Deg2Rad);
-				//y = radius * Mathf.Cos(angle2 * Mathf.Deg2Rad);
-				//z = radius * Mathf.Cos(angle2 * Mathf.Deg2Rad);
-				
-				Vector3 point = transform.position;//spline.GetPoint(t) - transform.position;
-				//print(point);
-				
-				vertices[i] = Vector3.Cross(new Vector3(x,y,z), direction) + point;// + direction;
+				Vector3 direction = rings[j].position;
+				x = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+				y = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
+				vertices[i] = rings[j].TransformPoint(new Vector3(x,y,0)); 
 				angle += 360 / circleVertices;
-				//yield return new WaitForSecondsRealtime(0.01f);
 			}
 		}
 	}
